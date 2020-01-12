@@ -1,0 +1,78 @@
+Package: adaflow
+Type: Package
+Title: Comprehensitive tools for preoteomics data processing and data analysis
+Version: 0.0.1
+Date: 2020-01-09
+Authors@R: c(
+    person("Xiaotao", "Shen", , "shenxt1990@163.com", role = c("aut", "cre"), 
+      comment = c(ORCID = "0000-0002-9608-9964")
+    ),
+    person("Meng", "Wang", , "shenxt1990@163.com", role = c("aut", "cre"), 
+      comment = c(ORCID = "0000-0002-9608-9964")
+    ),
+    person("Xin", "Zhou", , "shenxt1990@163.com", role = c("aut", "cre"), 
+      comment = c(ORCID = "0000-0002-9608-9964")
+    )
+    )
+Maintainer: Xiaotao Shen<shenxt1990@163.com>
+Description: This package is used to do all the data processing and data analysis for preoteomics.
+LazyData: true
+Depends: R (>= 3.5)
+Imports:
+    BiocParallel,
+    cli,
+    crayon,
+    clisymbols,
+    dplyr,
+    faahKO,
+    ggplot2,
+    ggsci,
+    ggfortify,
+    graphics,
+    grDevices,
+    pcaMethods,
+    impute,
+    missForest,
+    magrittr,
+    scatterplot3d,
+    pbapply,
+    pheatmap,
+    plyr,
+    purrr,
+    beeswarm,
+    ellipse,
+    patchwork,
+    pls,
+    plsdepot,
+    pROC,
+    e1071,
+    snow,
+    tidyverse,
+    methods,
+    MSnbase,
+    mzR,
+    pander,
+    utils,
+    rvest,
+    stats,
+    readr,
+    readxl,
+    RColorBrewer,
+    plotly,
+    stringr,
+    tibble,
+    tidyr,
+    xcms,
+    xml2
+License: GPL-2 | file LICENSE
+URL: https://github.com/jaspershen/adaflow
+RoxygenNote: 6.1.1
+Suggests: knitr,
+    rmarkdown,
+    BiocStyle,
+    RUnit,
+    BiocGenerics
+VignetteBuilder: knitr
+Note:
+biocViews: Proteomics, MassSpectrometry, Data processing, Data analysis.
+Encoding: UTF-8

@@ -1,0 +1,12 @@
+name: adaflow
+title: adaflow
+username:
+account: shenxt
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1646329
+bundleId: 2721403
+url: https://shenxt.shinyapps.io/adaflow/
+when: 1578723800.77429
+asMultiple: FALSE
+asStatic: FALSE
