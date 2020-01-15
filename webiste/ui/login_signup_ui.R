@@ -46,119 +46,35 @@ login_ui <- function(){
 }
 
 
-#####Ui for not log in of analysis page
-not_logged_in2 <- function(){
-  tagList(
-    div(img(src='sorry2.gif',
-            # height = 400,
-            width = 400
-    ), style="text-align: center;"),
-
-    h3("Please click Log in & Account to log in first.",
-      align = "center"),
-
-     fluidRow(column(6, align = "center", offset = 3,
-                     actionButton("jump_2_initial_tab2",
-                                  label = "Log in",
-                                  styleclass = "info")
-     ))
-  )
-}
-
-
 not_logged_in3 <- function(){
-  tagList(
-    div(img(src='sorry2.gif',
-            # height = 400,
-            width = 400
-    ), style="text-align: center;"),
-
-    h3("Please click Log in & Account to log in first.",
-       align = "center"),
-
-    fluidRow(column(6, align = "center", offset = 3,
-                    actionButton("jump_2_initial_tab3",
-                                 label = "Log in",
-                                 styleclass = "info")
+  fluidPage(absolutePanel(
+    top = "20%",
+    left = "35%",
+    width = "30%",
+    wellPanel(fluidRow(column(
+      width = 10,
+      offset = 1,
+      align = "center",
+      # tagList(
+      div(img(src = 'Sorry-Note.jpg',
+              # height = 400,
+              width = 400
+      ), style="text-align: center;"),
+      
+      h3("Please click Log in & Account to log in first.",
+         align = "center"),
+      
+      fluidRow(column(6, align = "center", offset = 3,
+                      actionButton("jump_2_initial_tab3",
+                                   label = "Log in",
+                                   styleclass = "info")
+      ))
+      # )
     ))
-  )
+    # tags$style(".well {border-color: white;background-color: white}")
+    )
+  ))
 }
-
-not_logged_in4 <- function(){
-  tagList(
-    div(img(src='sorry2.gif',
-            # height = 400,
-            width = 400
-    ), style="text-align: center;"),
-
-    h3("Please click Log in & Account to log in first.",
-       align = "center"),
-
-    fluidRow(column(6, align = "center", offset = 3,
-                    actionButton("jump_2_initial_tab4",
-                                 label = "Log in",
-                                 styleclass = "info")
-    ))
-  )
-}
-
-not_logged_in5 <- function(){
-  tagList(
-    div(img(src='sorry2.gif',
-            # height = 400,
-            width = 400
-    ), style="text-align: center;"),
-
-    h3("Please click Log in & Account to log in first.",
-       align = "center"),
-
-    fluidRow(column(6, align = "center", offset = 3,
-                    actionButton("jump_2_initial_tab5",
-                                 label = "Log in",
-                                 styleclass = "info")
-    ))
-  )
-}
-
-
-
-not_logged_in6 <- function(){
-  tagList(
-    div(img(src='sorry2.gif',
-            # height = 400,
-            width = 400
-    ), style="text-align: center;"),
-
-    h3("Please click Log in & Account to log in first.",
-       align = "center"),
-
-    fluidRow(column(6, align = "center", offset = 3,
-                    actionButton("jump_2_initial_tab6",
-                                 label = "Log in",
-                                 styleclass = "info")
-    ))
-  )
-}
-
-
-not_logged_in7 <- function(){
-  tagList(
-    div(img(src='sorry2.gif',
-            # height = 400,
-            width = 400
-    ), style="text-align: center;"),
-
-    h3("Please click Log in & Account to log in first.",
-       align = "center"),
-
-    fluidRow(column(6, align = "center", offset = 3,
-                    actionButton("jump_2_initial_tab8",
-                                 label = "Log in",
-                                 styleclass = "info")
-    ))
-  )
-}
-
 
 
 ################################################################################
@@ -296,35 +212,76 @@ reset_pw_ui <-
 # }
 
 
+
 signup_success_ui <- function(){
-  tagList(
-    br(), br(), br(),
-    div(img(src='congratugation.jpg',
-            height = 240, width = 889
-    ), style = "text-align: center;"),
-    h3(
-      "Thank you for your register. 
+  fluidPage(absolutePanel(
+    top = "20%",
+    left = "10%",
+    width = "80%",
+    wellPanel(fluidRow(column(
+      width = 10,
+      offset = 1,
+      align = "center",
+      div(img(src='congratugation.jpg',
+              height = 240, width = 889
+      ), style = "text-align: center;"),
+      h3(
+        "Thank you for your register. 
       Now you can log in to analyze data.",
-      align = "center"),
-    fluidRow(column(6, align = "center", offset = 3,
-                    actionButton("jump_2_initial_tab7",
-                                 label = "Log in",
-                                 styleclass = "info")
+        align = "center"),
+      fluidRow(column(6, align = "center", offset = 3,
+                      actionButton("jump_2_initial_tab7",
+                                   label = "Log in",
+                                   styleclass = "info")
+      ))
+      # )
     ))
-  )
+    # tags$style(".well {border-color: white;background-color: white}")
+    )
+  ))
 }
 
-reset_success_ui <- 
-  function(){
-  tagList(
-    div(img(src='congratugation.jpg',
-            height = 240, width = 889
-    ), style="text-align: center;"),
-    h3(
-      "Please refresh the page and use your new password to log in.",
-      align = "center")
-  )
+
+# signup_success_ui <- function(){
+#   tagList(
+#     br(), br(), br(),
+#     div(img(src='congratugation.jpg',
+#             height = 240, width = 889
+#     ), style = "text-align: center;"),
+#     h3(
+#       "Thank you for your register. 
+#       Now you can log in to analyze data.",
+#       align = "center"),
+#     fluidRow(column(6, align = "center", offset = 3,
+#                     actionButton("jump_2_initial_tab7",
+#                                  label = "Log in",
+#                                  styleclass = "info")
+#     ))
+#   )
+# }
+
+reset_success_ui <- function(){
+  fluidPage(absolutePanel(
+    top = "20%",
+    left = "10%",
+    width = "80%",
+    wellPanel(fluidRow(column(
+      width = 10,
+      offset = 1,
+      align = "center",
+      tagList(
+        div(img(src='congratugation.jpg',
+                height = 240, width = 889
+        ), style="text-align: center;"),
+        h3(
+          "Please refresh the page and use your new password to log in.",
+          align = "center")
+      )
+    )))
+  ))
 }
+
+
 
 # reset_success_ui <- function(){
 #   tagList(

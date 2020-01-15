@@ -265,7 +265,6 @@ shinyServer(function(session, input, output) {
   #     reset_success_ui()
   #   )))
   
-
   output$reset_not_sucess <-
     renderUI(fluidPage(absolutePanel(
       top = "20%",
@@ -440,7 +439,7 @@ shinyServer(function(session, input, output) {
 
   #-----------------------------------------------------------------------------
   ## data cleaning functions, in the R file named dataCleaning
-  # source("function/data_cleaning/dataCleaning.R", local = TRUE)$value
+  source("function/analysis/analysis_server.R", local = TRUE)$value
 
 }
 )

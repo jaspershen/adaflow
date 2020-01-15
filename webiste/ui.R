@@ -70,14 +70,11 @@ source("function/help.R")
 source("ui/account_ui.R")
 source("ui/comment_ui.R")
 source("ui/home_page_ui.R")
-# source("ui/linkUI.R")
 source("ui/login_signup_ui.R")
-# source("ui/otherUI.R")
 source("ui/demo_data_ui.R")
 
-##data cleaning UI
-##data cleaning UI
-# source("ui/data_cleaning/dc_ui.R")
+##analysis UI
+source("ui/analysis/analysis_ui.R")
 
 shinyUI(
     navbarPage(id = "initial_tab",
@@ -155,11 +152,6 @@ shinyUI(
                                    # icon = icon("database"),
                                    uiOutput("demo_data_page")
                                    )
-
-                          # tabPanel(title = "AdaFlow R package",
-                          #          # icon = icon("database"),
-                          #          uiOutput("demo_data_page")
-                          # )
                ),
 
                #---------------------------------------------------------------
@@ -170,13 +162,6 @@ shinyUI(
                           uiOutput("comment_page")
                         )
                ),
-
-               #---------------------------------------------------------------
-               #Link
-               # tabPanel(title = "Links",
-               #          icon = icon(name = "link"),
-               #          uiOutput("link.area")
-               # ),
 
                #---------------------------------------------------------------
                #Sign up

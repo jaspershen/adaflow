@@ -2,10 +2,10 @@
 comment_ui <- function(){
   tagList(
     column(width = 8, offset = 2,
-           h4("If you have any questions about MetFlow,
+           h4("If you have any questions about AdaFlow,
               please do not hesitate to leave us a message!",
               br(),
-              "You can also send email to us, zhulab@sioc.ac.cn.",
+              "You can also send email to us, shenxt@stanford.edu",
               align = "justify",
               style="line-height:40px;color:black"),
            tabPanel(title = "Comments", icon = icon(name = "comments"),
