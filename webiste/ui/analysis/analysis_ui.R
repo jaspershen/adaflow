@@ -3,21 +3,22 @@
 ###data cleaning UI
 analysis_ui <- function(){
   fluidPage(
-    navlistPanel(id = "DCtab",
+    navlistPanel(id = "analysis_tab",
+                 # title = "Analysis",
                  fluid = TRUE, 
                  well = TRUE,
                  widths = c(3, 9), 
                  selected = "analysis_upload",
                  ##upload data
                  tabPanel(value = "analysis_upload",
-                          title = "1. Upload Data Files",
+                          title = "Upload Data",
                           icon = shiny::icon("upload"),
                           source("ui/analysis/analysis_upload_ui.R", local = TRUE)$value
                  ),
 
                  ##data check
-                 tabPanel(value = "DCdataCheck",
-                          title = "2. Check Data Files",
+                 tabPanel(value = "analysis_check",
+                          title = "Check Data",
                           icon = icon("check-square"),
                           source("ui/data_cleaning/dc_data_check_ui.R", local = TRUE)$value
                           # uiOutput(outputId = ".dc.data.check.area")
@@ -39,8 +40,8 @@ analysis_ui <- function(){
 
                  ##missing value processing
                  ##
-                 tabPanel(value = "DCmvProcessing",
-                          title = "3. Missing Value Processing",
+                 tabPanel(value = "analysis_mv_processing",
+                          title = "MV Processing",
                           icon = icon("puzzle-piece"),
                           source("ui/data_cleaning/dc_mv_processing_ui.R", local = TRUE)$value
                  ),
@@ -53,8 +54,8 @@ analysis_ui <- function(){
                 # ),
 
                 ##data normalization
-                tabPanel(value = "DCdn",
-                         title = "4. Data Normalization",
+                tabPanel(value = "analysis_normalization",
+                         title = "Data Normalization",
                          icon = icon("eraser"),
                          source("ui/data_cleaning/dc_data_normalization_ui.R", local = TRUE)$value
                 ),
@@ -81,8 +82,8 @@ analysis_ui <- function(){
                 # ),
 
                 ##data download
-                tabPanel(value = "DCdownload",
-                         title = "5. Result Download",
+                tabPanel(value = "analysis_download",
+                         title = "Download",
                          icon = icon("download"),
                          source("ui/data_cleaning/dc_download_result_ui.R", local = TRUE)$value
                          # uiOutput(outputId = ".dc.data.profile.area")

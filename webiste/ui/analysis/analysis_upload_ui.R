@@ -3,9 +3,9 @@
     # headerPanel(title = "Upload data"),
     column(width = 4,
            wellPanel(
-             textInput(inputId = "analysis_project-id",
+             textInput(inputId = "analysis_project_id",
                        label = h5(
-                         "Project name",
+                         "Project Name",
                          shinyBS::tipify(
                            el = icon(name = "info-circle"),
                            placement = "bottom",
@@ -16,33 +16,50 @@
                        value = "",
                        placeholder = "Project name"
                        ),
-             #ms1. peak table
+             #Phenotype table
              fileInput(
-               inputId = "analysis_peak_table",
+               inputId = "analysis_phenotype_table",
                label = h5(
-                 "Peak table",
+                 "Phenotype Table",
                  shinyBS::tipify(
                    el = icon(name = "info-circle"),
                    placement = "bottom",
                    trigger = "hover",
-                   title = "The first column must be peak name"
+                   title = "Phenotype Table"
                  )
                ),
-               multiple = TRUE,
+               multiple = FALSE,
+               accept = c("txt/csv", "text/comma-separated-values,text/plain", ".csv"),
+               buttonLabel = "Browser"
+             ),
+             
+             #Variable table
+             fileInput(
+               inputId = "analysis_variable_table",
+               label = h5(
+                 "Variable Table",
+                 shinyBS::tipify(
+                   el = icon(name = "info-circle"),
+                   placement = "bottom",
+                   trigger = "hover",
+                   title = "Variable Table"
+                 )
+               ),
+               multiple = FALSE,
                accept = c("txt/csv", "text/comma-separated-values,text/plain", ".csv"),
                buttonLabel = "Browser"
              ),
 
-             #sample information
+             #Expression table
              fileInput(
-               inputId = "analysis_sample_info",
+               inputId = "analysis_expression_table",
                label = h5(
-                 "Sample information",
+                 "Expresson Table",
                  shinyBS::tipify(
                    el = icon(name = "info-circle"),
                    placement = "bottom",
                    trigger = "hover",
-                   title = "Column 1: sample name, column 2: group"
+                   title = "Expresson Table"
                  )
                ),
                multiple = FALSE,
@@ -55,8 +72,8 @@
 
              shinyalert::useShinyalert(),
                actionButton(
-                 inputId = 'dc.upload.button',
-                 label = "Submit",
+                 inputId = 'analysis_upload_button',
+                 label = "Upload",
                  styleclass = "info",
                  # class = "btn-primary",
                  icon = icon('play-circle')
@@ -74,7 +91,7 @@
     ),
 
     column(width = 7,
-             includeHTML(path = "data/html/introduction_dc_data_upload.html"),
+             includeHTML(path = "data/html/introduction_analysis_data_upload.html"),
            br(), br(), br()
     )
 

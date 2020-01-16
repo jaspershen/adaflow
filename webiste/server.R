@@ -110,11 +110,18 @@ shinyServer(function(session, input, output) {
 
   #### PASSWORD server code ----------------------------------------------------
   # reactive value containing user's authentication status
-  user_input <- reactiveValues(authenticated = FALSE,
-                               valid_credentials = FALSE,
+  # user_input <- reactiveValues(authenticated = FALSE,
+  #                              valid_credentials = FALSE,
+  #                              user_locked_out = FALSE,
+  #                              status = "",
+  #                              username = "")
+  
+  
+  user_input <- reactiveValues(authenticated = TRUE,
+                               valid_credentials = TRUE,
                                user_locked_out = FALSE,
                                status = "",
-                               username = "")
+                               username = "test")
   ##############################################################################
 
   # authenticate user by:

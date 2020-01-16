@@ -5,8 +5,8 @@ account: shenxt
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1646329
-bundleId: 2729761
+bundleId: 2729827
 url: https://shenxt.shinyapps.io/adaflow/
-when: 1579070569.18296
+when: 1579072726.33271
 asMultiple: FALSE
 asStatic: FALSE

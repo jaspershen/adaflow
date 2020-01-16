@@ -12,211 +12,263 @@ output$data_analysis_page <- renderUI({
 
 
 
-# ##warning if no data selected or project name is null
-# observeEvent(eventExpr = input$dc.upload.button, {
-#   #if don't use demo data and don't upload data or give project name, error
-#   if(input$dc.use.demo.data == FALSE){
-#     if(is.null(input$DCms1PeakTable) | is.null(input$DCsampleInfo) | input$DCprojectID == ""){
-#       shinyalert::shinyalert(title = "Error",
-#                              text = "Project name, MS1 peak table and Sample information are required.",
-#                              type = "error")
-#     }
-#   }
-# })
-# 
-# 
-# observeEvent(eventExpr = input$dc.upload.button, {
-#   #if don't use demo data and don't upload data or give project name, error
-#   if(input$dc.use.demo.data == TRUE){
-#     if(input$DCprojectID == ""){
-#       shinyalert::shinyalert(title = "Error",
-#                              text = "Project name is required.",
-#                              type = "error")
-#     }
-#   }
-# })
+##warning if no data selected or project name is null
+observeEvent(eventExpr = input$analysis_upload_button, {
+  #if don't use demo data and don't upload data or give project name, error
+  if(input$analysis_use_demo_data == FALSE){
+    if(is.null(input$analysis_phenotype_table) | is.null(input$analysis_phenotype_table) | 
+       is.null(input$analysis_expression_table) |
+       input$analysis_project_id == ""){
+      shinyalert::shinyalert(title = "Error",
+                             text = "Project name, phenotype table, variable and expression table are required.",
+                             type = "error")
+    }
+  }
+})
+
+observeEvent(eventExpr = input$analysis_upload_button, {
+  #if don't use demo data and don't upload data or give project name, error
+  if(input$analysis_use_demo_data == TRUE){
+    if(input$analysis_project_id == ""){
+      shinyalert::shinyalert(title = "Error",
+                             text = "Project name is required.",
+                             type = "error")
+    }
+  }
+})
 # 
 # 
 # ##create folder
-# observeEvent(input$dc.upload.button,{
-#   if(!is.null(input$DCprojectID)){
-#     if(input$DCprojectID != ""){
-#       dir.create(file.path("./user_data", user_input$username))
-#       dir.create(file.path("./user_data", user_input$username, input$DCprojectID))
-#       dir.create(file.path("./user_data", user_input$username, input$DCprojectID, "data_cleaning"))
-#     }
-#   }
-# })
+observeEvent(input$analysis_upload_button,{
+  if(!is.null(input$analysis_project_id)){
+    if(input$analysis_project_id != ""){
+      dir.create(file.path("./user_data", user_input$username))
+      dir.create(file.path("./user_data", user_input$username, input$analysis_project_id))
+      dir.create(file.path("./user_data", user_input$username, input$analysis_project_id, "analysis"))
+    }
+  }
+})
+
+
+###record job number
+observeEvent(input$analysis_upload_button,{
+  if(!is.null(input$analysis_project_id)){
+    if(input$analysis_project_id != ""){
+      credentials <- readRDS("credentials/credentials.rds")
+      credentials$job.number[match(user_input$username, credentials$user)] <- 
+        as.numeric(credentials$job.number[match(user_input$username, credentials$user)])+1
+      saveRDS(credentials, "credentials/credentials.rds")
+    }
+  }
+})
+
+# -------------------------------------------------------------------------------
+###read phenotype  table
+
+analysis_phenotype_table_raw <- reactiveValues(data = NULL)
+observeEvent(eventExpr = input$analysis_upload_button, {
+withProgress(message = 'Upload Phenotype Table...',
+             detail = 'This may take a while',
+             # style= "old",
+             value = 0, {
+               if(input$analysis_use_demo_data == TRUE){##use demo data
+                 temp_file <- dir("./data/demo_data/analysis")
+                 analysis_phenotype_table_raw$data <- lapply(1:1, function(idx){
+                   incProgress(amount = 1/1, message = "",
+                               detail = 'Phenotype Table')
+                   as.data.frame(readr::read_csv("./data/demo_data/analysis/phenotype_table.csv",
+                                                 col_types = readr::cols()))
+                 })
+               }else{#upload data
+                 if (!is.null(input$analysis_phenotype_table) & input$analysis_project_id != "") {
+                   temp_file <- input$analysis_phenotype_table$datapath
+                   analysis_phenotype_table_raw$data <- lapply(1:length(temp_file), function(idx){
+                     incProgress(1/length(temp_file),
+                                 detail = 'Phenotype Table')
+                     as.data.frame(readr::read_csv(temp_file[idx],
+                                                   col_types = readr::cols()))
+                   })
+                 }
+               }
+             })
+})
+
+
+## read variable table
+analysis_variable_table_raw <- reactiveValues(data = NULL)
+observeEvent(eventExpr = input$analysis_upload_button, {
+  withProgress(message = 'Upload Variable Table...',
+               detail = 'This may take a while',
+               # style= "old",
+               value = 0, {
+                 if(input$analysis_use_demo_data == TRUE){##use demo data
+                   temp_file <- dir("./data/demo_data/analysis")
+                   analysis_variable_table_raw$data <- lapply(1:1, function(idx){
+                     incProgress(amount = 1/1, message = "",
+                                 detail = 'Phenotype Table')
+                     as.data.frame(readr::read_csv("./data/demo_data/analysis/variable_table.csv",
+                                                   col_types = readr::cols()))
+                   })
+                 }else{#upload data
+                   if (!is.null(input$analysis_variable_table) & input$analysis_project_id != "") {
+                     temp_file <- input$analysis_variable_table$datapath
+                     analysis_variable_table_raw$data <- lapply(1:length(temp_file), function(idx){
+                       incProgress(1/length(temp_file),
+                                   detail = 'Variable Table')
+                       as.data.frame(readr::read_csv(temp_file[idx],
+                                                     col_types = readr::cols()))
+                     })
+                   }
+                 }
+               })
+})
+
+
+
+## read expression table
+analysis_expression_table_raw <- reactiveValues(data = NULL)
+observeEvent(eventExpr = input$analysis_upload_button, {
+  withProgress(message = 'Upload Expression Table...',
+               detail = 'This may take a while',
+               # style= "old",
+               value = 0, {
+                 if(input$analysis_use_demo_data == TRUE){##use demo data
+                   temp_file <- dir("./data/demo_data/analysis")
+                   analysis_expression_table_raw$data <- lapply(1:1, function(idx){
+                     incProgress(amount = 1/1, message = "",
+                                 detail = 'Expression Table')
+                     as.data.frame(readr::read_csv("./data/demo_data/analysis/expression_table.csv",
+                                                   col_types = readr::cols()))
+                   })
+                 }else{#upload data
+                   if (!is.null(input$analysis_expression_table) & input$analysis_project_id != "") {
+                     temp_file <- input$analysis_expression_table$datapath
+                     analysis_expression_table_raw$data <- lapply(1:length(temp_file), function(idx){
+                       incProgress(1/length(temp_file),
+                                   detail = 'Expression Table')
+                       as.data.frame(readr::read_csv(temp_file[idx],
+                                                     col_types = readr::cols()))
+                     })
+                   }
+                 }
+               })
+})
+
+
+##save data which user upload
+observeEvent(eventExpr = input$analysis_upload_button, {
+  if (input$analysis_project_id != "") {
+    withProgress(message = 'Saving data...',
+                 detail = 'This may take a while',
+                 # style= "old",
+                 value = 0,
+                 {
+                   lapply(1:length(1), function(idx) {
+                     incProgress(1 / length(1),
+                                 detail = "This may take a while")
+                     ##phenotype table
+                     if (!is.null(analysis_phenotype_table_raw$data)) {
+                       analysis_phenotype_table_raw <- analysis_phenotype_table_raw$data
+                       save(
+                         analysis_phenotype_table_raw,
+                         file = file.path(
+                           "user_data",
+                           user_input$username,
+                           input$analysis_project_id,
+                           "analysis",
+                           "analysis_phenotype_table_raw"
+                         )
+                       )
+                       rm(list = c("analysis_phenotype_table_raw"))
+                     }
+                     
+                     ##variable table
+                     if (!is.null(analysis_variable_table_raw$data)) {
+                       analysis_variable_table_raw <- analysis_variable_table_raw$data
+                       save(
+                         analysis_variable_table_raw,
+                         file = file.path(
+                           "user_data",
+                           user_input$username,
+                           input$analysis_project_id,
+                           "analysis",
+                           "analysis_variable_table_raw"
+                         )
+                       )
+                       rm(list = c("analysis_variable_table_raw"))
+                     }
+                     
+                     #expression table
+                     if (!is.null(analysis_expression_table_raw$data)) {
+                       analysis_expression_table_raw <- analysis_expression_table_raw$data
+                       save(
+                         analysis_expression_table_raw,
+                         file = file.path(
+                           "user_data",
+                           user_input$username,
+                           input$analysis_project_id,
+                           "analysis",
+                           "analysis_expression_table_raw"
+                         )
+                       )
+                       rm(list = c("analysis_expression_table_raw"))
+                     }
+                     
+                   })
+                 })
+  }
+})
+
+
+##jump to data check page from upload data page
+observeEvent(input$analysis_upload_button, {
+  if(!is.null(analysis_phenotype_table_raw$data) & 
+     !is.null(analysis_variable_table_raw$data) & 
+     !is.null(analysis_expression_table_raw$data) & 
+     input$analysis_project_id != ""){
+    updateTabsetPanel(session, inputId = "analysis_tab",
+                      selected = "analysis_check")
+  }
+})
+
+
+#------------------------------------------------------------------------------
+##Check data
+analysis_data_check_result <- reactiveValues(data = NULL)
+
+observeEvent(eventExpr = input$analysis_upload_button,{
+  
+  if(!is.null(analysis_phenotype_table_raw$data) & 
+     !is.null(analysis_variable_table_raw$data) & 
+     !is.null(analysis_expression_table_raw$data) & 
+     input$analysis_project_id != ""){
+    
+    check_result <- try({checkData(phenotype.table = analysis_phenotype_table_raw$data,
+                                   variable.table =  analysis_variable_table_raw$data,
+                                   expression.table = analysis_expression_table_raw$data,
+                                                         sample.info = dc.sample.info.raw$data)})
+    
+    if(class(check.result)[1] == "try-error"){
+      output$analysis_data_check_result.info <- renderText({paste("Data check: ",check.result[[1]])})
+      check.result <- data.frame("Data.File" = "Data",
+                                 "Information" = "There are errors in your data",
+                                 "Result" = "Error",
+                                 stringsAsFactors = FALSE)
+    }else{
+      output$analysis_data_check_result.info <- renderText({""})
+    }
+  }else{
+    check.result <- data.frame("Data.File" = "Data",
+                               "Information" = "You don't provide MS1 peak table or sample information",
+                               "Result" = "Error",
+                               stringsAsFactors = FALSE)
+  }
+  analysis_data_check_result$data <- check.result
+})
 # 
 # 
-# ###record job number
-# # observeEvent(input$dc.upload.button,{
-# #   if(!is.null(input$DCprojectID)){
-# #     if(input$DCprojectID != ""){
-# #     load("credentials/jobNumber")
-# #       jobNumber <- jobNumber + 1
-# #       save(jobNumber, file = "credentials/jobNumber")
-# #     }
-# #   }
-# # })
-# 
-# 
-# # ###record job number
-# observeEvent(input$dc.upload.button,{
-#   if(!is.null(input$DCprojectID)){
-#     if(input$DCprojectID != ""){
-#       credentials <- readRDS("credentials/credentials.rds")
-#       credentials$job.number[match(user_input$username, credentials$user)] <- as.numeric(credentials$job.number[match(user_input$username, credentials$user)])+1
-#       saveRDS(credentials, "credentials/credentials.rds")
-#     }
-#   }
-# })
-# 
-# 
-# # -------------------------------------------------------------------------------
-# ###read MS1 peak table
-# dc.ms1.raw <- reactiveValues(data = NULL)
-# observeEvent(eventExpr = input$dc.upload.button, {
-#   withProgress(message = 'Upload MS1 peak table...',
-#                detail = 'This may take a while',
-#                # style= "old",
-#                value = 0, {
-#                  if(input$dc.use.demo.data == TRUE){##use demo data
-#                    temp.file <- dir("./data/demo_data/Data_Cleaning")
-#                    temp.file <- grep("batch", x = temp.file, value = TRUE)
-#                    dc.ms1.raw$data <- lapply(1:length(temp.file), function(idx){
-#                      x <- temp.file[idx]
-#                      incProgress(1/length(temp.file),
-#                                  detail = paste("Data", idx))
-#                      as.data.frame(readr::read_csv(file.path("./data/demo_data/Data_Cleaning",x),
-#                                                    col_types = readr::cols()))
-#                    })
-#                  }else{#upload data
-#                    if (!is.null(input$DCms1PeakTable) & input$DCprojectID != "") {
-#                      temp.file <- input$DCms1PeakTable$datapath
-#                      dc.ms1.raw$data <- lapply(1:length(temp.file), function(idx){
-#                        incProgress(1/length(temp.file),
-#                                    detail = paste("Data", idx))
-#                        as.data.frame(readr::read_csv(temp.file[idx],
-#                                                      col_types = readr::cols()))
-#                      })
-#                    }
-#                  }
-#                })
-# })
-# 
-# 
-# ## read sample.info
-# dc.sample.info.raw <- reactiveValues(data = NULL)
-# observeEvent(eventExpr = input$dc.upload.button, {
-#   if(input$dc.use.demo.data == TRUE){
-#     dc.sample.info.raw$data <- as.data.frame(readr::read_csv("./data/demo_data/Data_Cleaning/sample.information.csv",
-#                                                              col_types = readr::cols()))
-#     dc.sample.info.raw$data[,"group"] <- as.character(dc.sample.info.raw$data[,"group"])
-# 
-#   }else{
-#     if (!is.null(input$DCsampleInfo) & input$DCprojectID != "") {
-#       dc.sample.info.raw$data <-
-#         as.data.frame(readr::read_csv(input$DCsampleInfo$datapath,col_types = readr::cols()))
-#     }
-# 
-#   }
-# })
-# 
-# 
-# 
-# ##save data user upload
-# observeEvent(eventExpr = input$dc.upload.button, {
-#   if(input$DCprojectID != ""){
-#     withProgress(message = 'Save data...',
-#                  detail = 'This may take a while',
-#                  # style= "old",
-#                  value = 0, {
-#                    lapply(1:length(1), function(idx){
-#                      incProgress(1/length(1),
-#                                  detail = "This may take a while")
-#                      if(!is.null(dc.ms1.raw$data)){
-#                        dc.ms1.raw <- dc.ms1.raw$data
-#                        save(dc.ms1.raw, file = file.path("user_data", user_input$username,
-#                                                          input$DCprojectID,
-#                                                          "data_cleaning",
-#                                                          "dc.ms1.raw"))
-#                        rm(list= c("dc.ms1.raw"))
-#                      }
-# 
-#                      if(!is.null(dc.sample.info.raw$data)){
-#                        dc.sample.info.raw <- dc.sample.info.raw$data
-#                        save(dc.sample.info.raw, file = file.path("user_data", user_input$username,
-#                                                                  input$DCprojectID,
-#                                                                  "data_cleaning",
-#                                                                  "dc.sample.info.raw"))
-#                        rm(list= c("dc.sample.info.raw"))
-#                      }
-#                    })
-#                  })
-#   }
-# })
-# 
-# 
-# ##jump to data check page from upload data page
-# observeEvent(input$dc.upload.button, {
-#   if(!is.null(dc.ms1.raw$data) & !is.null(dc.sample.info.raw$data) & input$DCprojectID != ""){
-#     updateTabsetPanel(session, inputId = "DCtab",
-#                       selected = "DCdataCheck")
-#   }
-# 
-# })
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# #------------------------------------------------------------------------------
-# ##Check data
-# dc.data.check.result <- reactiveValues(data = NULL)
-# observeEvent(eventExpr = input$dc.upload.button,{
-#   if(!is.null(dc.ms1.raw$data) & !is.null(dc.sample.info.raw$data) & input$DCprojectID != ""){
-#     check.result <- try({checkData(peak.table = dc.ms1.raw$data,
-#                                                          sample.info = dc.sample.info.raw$data,
-#                                                          step = "cleaning")})
-#     if(class(check.result)[1] == "try-error"){
-#       output$dc.data.check.result.info <- renderText({paste("Data check: ",check.result[[1]])})
-#       check.result <- data.frame("Data.File" = "Data",
-#                                  "Information" = "There are errors in your data",
-#                                  "Result" = "Error",
-#                                  stringsAsFactors = FALSE)
-#     }else{
-#       output$dc.data.check.result.info <- renderText({""})
-#     }
-#   }else{
-#     check.result <- data.frame("Data.File" = "Data",
-#                                "Information" = "You don't provide MS1 peak table or sample information",
-#                                "Result" = "Error",
-#                                stringsAsFactors = FALSE)
-#   }
-#   dc.data.check.result$data <- check.result
-# })
-# 
-# 
-# output$dc.data.check.result <- DT::renderDataTable(
-#   DT::datatable(dc.data.check.result$data,
+# output$analysis_data_check_result <- DT::renderDataTable(
+#   DT::datatable(analysis_data_check_result$data,
 #                 class = 'cell-border stripe',
 #                 editable = FALSE,
 #                 selection = "single",
@@ -276,8 +328,8 @@ output$data_analysis_page <- renderUI({
 # 
 # ##jump to batch alignment page from data check
 # observeEvent(input$dc.data.check.2.dc.batch.alignment, {
-#   if(!is.null(dc.data.check.result$data)){
-#     if(length(grep(pattern = "Error",dc.data.check.result$data[,3])) == 0){
+#   if(!is.null(analysis_data_check_result$data)){
+#     if(length(grep(pattern = "Error",analysis_data_check_result$data[,3])) == 0){
 #       updateTabsetPanel(session, "DCtab",
 #                         selected = "DCbatchAlignment")
 #     }
@@ -286,8 +338,8 @@ output$data_analysis_page <- renderUI({
 # 
 # ##error if there is an error in data
 # observeEvent(eventExpr = input$dc.data.check.2.dc.batch.alignment, {
-#   if(!is.null(dc.data.check.result$data)){
-#     if(length(grep(pattern = "Error",dc.data.check.result$data[,3])) != 0){
+#   if(!is.null(analysis_data_check_result$data)){
+#     if(length(grep(pattern = "Error",analysis_data_check_result$data[,3])) != 0){
 #       shinyalert::shinyalert(title = "Error",
 #                              text = "There are errors in you files, please click Previous to check and
 #                              upload again.",
@@ -300,8 +352,8 @@ output$data_analysis_page <- renderUI({
 # ##dc.data.info is the information of dataset.
 # dc.data.info <- reactiveValues(data = NULL)
 # observeEvent(eventExpr = input$dc.data.check.2.dc.batch.alignment,{
-#   if(!is.null(dc.ms1.raw$data) & !is.null(dc.sample.info.raw$data)){
-#     dc.data.info$data <- paste("There are", length(dc.ms1.raw$data), "batches.",
+#   if(!is.null(analysis_phenotype_table_raw$data) & !is.null(dc.sample.info.raw$data)){
+#     dc.data.info$data <- paste("There are", length(analysis_phenotype_table_raw$data), "batches.",
 #                                "And there are",
 #                                ifelse(any(dc.sample.info.raw$data$class == "QC"),
 #                                       "QC sample", "no QC samples."), "in your data.")
@@ -333,7 +385,7 @@ output$data_analysis_page <- renderUI({
 # ###rough match
 # dc.batch.alignment.result1 <- reactiveValues(data = NULL)
 # observeEvent(eventExpr = input$dc.ba.submit.button,{
-#   if(!is.null(dc.ms1.raw$data) & !is.null(dc.sample.info.raw$data) & input$DCprojectID != ""){
+#   if(!is.null(analysis_phenotype_table_raw$data) & !is.null(dc.sample.info.raw$data) & input$analysis_project_id != ""){
 #     withProgress(message = 'Rough alignment...',
 #                  detail = 'This may take a while',
 #                  # style= "old",
@@ -341,7 +393,7 @@ output$data_analysis_page <- renderUI({
 #                    temp <- try({lapply(1:1, function(idx){
 #                      incProgress(1/length(idx),
 #                                  detail = "This may take a while")
-#                      roughAlign(peak.table = dc.ms1.raw$data,
+#                      roughAlign(peak.table = analysis_phenotype_table_raw$data,
 #                                 combine.mz.tol = input$dc.ba.mz.tol,
 #                                 combine.rt.tol = input$dc.ba.rt.tol)
 #                    })[[1]]
@@ -371,7 +423,7 @@ output$data_analysis_page <- renderUI({
 #       input$dc.ba.rt.tol)
 #     dc.ba.params$data <- dcBAparams
 #     save(dcBAparams, file = file.path("user_data", user_input$username,
-#                                       input$DCprojectID,
+#                                       input$analysis_project_id,
 #                                       "data_cleaning",
 #                                       "dcBAparams"))
 #   })
@@ -391,7 +443,7 @@ output$data_analysis_page <- renderUI({
 # 
 # output$dc.ba.mz.plot <- renderPlotly({
 #   if(is.null(dc.batch.alignment.result1$data)) return(NULL)
-#   if(length(dc.ms1.raw$data) == 1) return(NULL)
+#   if(length(analysis_phenotype_table_raw$data) == 1) return(NULL)
 #   dc.ba.mz.plot <- baMZplot(dc.batch.alignment.result1$data)
 #   ggplotly(dc.ba.mz.plot,
 #            tooltip = c("mz", "mz.error"),
@@ -401,7 +453,7 @@ output$data_analysis_page <- renderUI({
 # 
 # output$dc.ba.rt.plot <- renderPlotly({
 #   if(is.null(dc.batch.alignment.result1$data)) return(NULL)
-#   if(length(dc.ms1.raw$data) == 1) return(NULL)
+#   if(length(analysis_phenotype_table_raw$data) == 1) return(NULL)
 #   dc.ba.rt.plot <- baRTplot(dc.batch.alignment.result1$data)
 #   ggplotly(dc.ba.rt.plot,
 #            tooltip = c("rt", "rt.error"),
@@ -411,7 +463,7 @@ output$data_analysis_page <- renderUI({
 # 
 # output$dc.ba.int.plot <- renderPlotly({
 #   if(is.null(dc.batch.alignment.result1$data)) return(NULL)
-#   if(length(dc.ms1.raw$data) == 1) return(NULL)
+#   if(length(analysis_phenotype_table_raw$data) == 1) return(NULL)
 #   dc.ba.int.plot <- baINTplot(dc.batch.alignment.result1$data)
 #   ggplotly(dc.ba.int.plot, tooltip = c(
 #     "int",
@@ -432,7 +484,7 @@ output$data_analysis_page <- renderUI({
 #                      lapply(1:1, function(idx){
 #                      incProgress(1/length(idx),
 #                                  detail = "This may take a while")
-#                      accurateAlign(peak.table = dc.ms1.raw$data,
+#                      accurateAlign(peak.table = analysis_phenotype_table_raw$data,
 #                                    simple.data = dc.batch.alignment.result1$data)
 #                    })[[1]]
 #                    })
@@ -498,8 +550,8 @@ output$data_analysis_page <- renderUI({
 # 
 # ###Warning if there is only one batch, warning user and tell them to click next
 # observeEvent(eventExpr = input$dc.ba.submit.button, {
-#   if(!is.null(dc.ms1.raw$data) & !is.null(dc.sample.info.raw$data) & input$DCprojectID != ""){
-#     if(length(dc.ms1.raw$data) == 1){
+#   if(!is.null(analysis_phenotype_table_raw$data) & !is.null(dc.sample.info.raw$data) & input$analysis_project_id != ""){
+#     if(length(analysis_phenotype_table_raw$data) == 1){
 #       shinyalert::shinyalert(title = "Note",
 #                              text = "There is only one batch data.",
 #                              type = "info")
@@ -511,7 +563,7 @@ output$data_analysis_page <- renderUI({
 # 
 # ###Error if there are more than one batch, warning if user click Next beforeclick submit
 # observeEvent(eventExpr = input$dc.ba.2.dc.qa1, {
-#   if(!is.null(dc.ms1.raw$data) & !is.null(dc.sample.info.raw$data) & input$DCprojectID != ""){
+#   if(!is.null(analysis_phenotype_table_raw$data) & !is.null(dc.sample.info.raw$data) & input$analysis_project_id != ""){
 #     if(is.null(dc.batch.alignment.result2$data)){
 #       shinyalert::shinyalert(title = "Error",
 #                              text = "Please click Submit first.",
@@ -536,7 +588,7 @@ output$data_analysis_page <- renderUI({
 # observeEvent(eventExpr = input$dc.ba.2.dc.qa1,{
 #   if(!is.null(dc.batch.alignment.result2$data)){
 # 
-#     temp <- try({getBatchAlignmentInfo(dc.ms1.raw$data,
+#     temp <- try({getBatchAlignmentInfo(analysis_phenotype_table_raw$data,
 #                                         dc.batch.alignment.result1$data,
 #                                         dc.batch.alignment.result2$data)})
 # 
@@ -1159,7 +1211,7 @@ output$data_analysis_page <- renderUI({
 #       input$colmax)
 #     dc.mv.params$data <- dcMVparams
 #     save(dcMVparams, file = file.path("user_data", user_input$username,
-#                                       input$DCprojectID,
+#                                       input$analysis_project_id,
 #                                       "data_cleaning",
 #                                       "dcMVparams"))
 #   })
@@ -1295,7 +1347,7 @@ output$data_analysis_page <- renderUI({
 #                                stringsAsFactors = FALSE)
 #     dc.zero.params$data <- dcZeroParams
 #     save(dcZeroParams, file = file.path("user_data", user_input$username,
-#                                         input$DCprojectID,
+#                                         input$analysis_project_id,
 #                                         "data_cleaning",
 #                                         "dcZeroParams"))
 #   })
@@ -1432,7 +1484,7 @@ output$data_analysis_page <- renderUI({
 # 
 #     dc.dn.params$data <- dcDNparams
 #     save(dcDNparams, file = file.path("user_data", user_input$username,
-#                                       input$DCprojectID,
+#                                       input$analysis_project_id,
 #                                       "data_cleaning",
 #                                       "dcDNparams"))
 #   })
@@ -2015,7 +2067,7 @@ output$data_analysis_page <- renderUI({
 #     dc.di.params$data <- dcDIparams
 # 
 #     save(dcDIparams, file = file.path("user_data", user_input$username,
-#                                       input$DCprojectID,
+#                                       input$analysis_project_id,
 #                                       "data_cleaning",
 #                                       "dcDIparams"))
 #   })
@@ -2567,7 +2619,7 @@ output$data_analysis_page <- renderUI({
 #     dc.os.params$data <- dcOSparams
 # 
 #     save(dcOSparams, file = file.path("user_data", user_input$username,
-#                                       input$DCprojectID,
+#                                       input$analysis_project_id,
 #                                       "data_cleaning",
 #                                       "dcOSparams"))
 #   })
@@ -3603,7 +3655,7 @@ output$data_analysis_page <- renderUI({
 # observeEvent(eventExpr = input$dc.generate.analysis.report, {
 #   if(is.null(dc.ms1.os$data)) return(NULL)
 #   now.path <- getwd()
-#   user.path <- file.path("user_data", user_input$username, input$DCprojectID, "data_cleaning")
+#   user.path <- file.path("user_data", user_input$username, input$analysis_project_id, "data_cleaning")
 #   tempReport <- file.path(now.path, user.path, "DCreport.temp.Rmd")
 #   file.copy("data/markdown/DCreport.Rmd", tempReport, overwrite = TRUE)
 # 
@@ -3669,7 +3721,7 @@ output$data_analysis_page <- renderUI({
 # output$dc.report.download <- downloadHandler(
 #   filename = "Analysis.Report.of.Data.Cleaning.html",
 #   content = function(file){
-#     file.copy(file.path("user_data", user_input$username, input$DCprojectID, "data_cleaning", "Analysis.Report.of.Data.Cleaning.html"), file)
+#     file.copy(file.path("user_data", user_input$username, input$analysis_project_id, "data_cleaning", "Analysis.Report.of.Data.Cleaning.html"), file)
 #   }
 # )
 # 
@@ -3677,9 +3729,9 @@ output$data_analysis_page <- renderUI({
 # # shinyjs::disable("dc.report.download")
 # # ##disable untill there is a report in you files
 # # observeEvent(eventExpr = input$dc.generate.analysis.report, {
-# #   if(!is.null(user_input$username) & input$DCprojectID != ""){
+# #   if(!is.null(user_input$username) & input$analysis_project_id != ""){
 # #     if(any(dir(file.path("user_data", user_input$username,
-# #                          input$DCprojectID, "data_cleaning")) == "Analysis.Report.of.Data.Cleaning.html")){
+# #                          input$analysis_project_id, "data_cleaning")) == "Analysis.Report.of.Data.Cleaning.html")){
 # #       shinyjs::enable("dc.report.download")
 # #     }
 # #   }
@@ -3712,7 +3764,7 @@ output$data_analysis_page <- renderUI({
 #                      temp <- try({
 #                        now.path <- getwd()
 #                        temp.path <- file.path(now.path, "user_data",
-#                                               user_input$username, input$DCprojectID,
+#                                               user_input$username, input$analysis_project_id,
 #                                               "data_cleaning","Data_Cleaning_Result")
 #                        dir.create(temp.path)
 #                        temp.path1 <- file.path(temp.path, "Figures")
@@ -3781,8 +3833,8 @@ output$data_analysis_page <- renderUI({
 #                        readr::write_csv(dcOStable$data,
 #                                         file.path(temp.path2, "Outlier.information.csv"))
 # 
-#                        setwd(file.path("user_data", user_input$username, input$DCprojectID, "data_cleaning"))
-#                        zip::zip(zipfile = file.path(now.path, "user_data", user_input$username, input$DCprojectID, "data_cleaning",
+#                        setwd(file.path("user_data", user_input$username, input$analysis_project_id, "data_cleaning"))
+#                        zip::zip(zipfile = file.path(now.path, "user_data", user_input$username, input$analysis_project_id, "data_cleaning",
 #                                                                     "Data_Cleaning_Result.zip"),
 #                                                 files = "Data_Cleaning_Result",
 #                                                 recurse = TRUE)
@@ -3809,7 +3861,7 @@ output$data_analysis_page <- renderUI({
 #   filename = "Data_Cleaning_Result.zip",
 #   content = function(file){
 #     file.copy(file.path("user_data", user_input$username,
-#                         input$DCprojectID,
+#                         input$analysis_project_id,
 #                         "data_cleaning",
 #                         "Data_Cleaning_Result.zip"), file)
 #   }
